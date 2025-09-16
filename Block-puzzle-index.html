@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Sliding Puzzle</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    #puzzle {
+      width: 400px;
+      height: 400px;
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 2px;
+      background: #ccc;
+    }
+    .tile {
+      background-image: url('puzzle.jpg.jpeg'); /* <— your image name here */
+      background-size: 400px 400px;
+      cursor: pointer;
+    }
+    .empty {
+      background: #ccc;
+      cursor: default;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sliding Puzzle</h1>
+  <div id="puzzle"></div>
+  <button onclick="shuffle()">Shuffle</button>
+
+  <script>
+    const size = 4;
+    const puzzle = document.getElementById('puzzle');
+    let tiles = [];
+
+    function createTiles() {
+      for (let i = 0; i < size * size; i++) {
+        const tile = document.createElement('div');
+        tile.classList.add('tile');
+        const x = i % size;
+        const y = Math.floor(i / size);
+        tile.style.backgroundPosition = `-${x * 100}px -${y * 100}px`;
+        tile.dataset.index = i;
+        tile.addEventListener('click', () => moveTile(i));
+        tiles.push(tile);
+        puzzle.appendChild(tile);
+      }
+      tiles[tiles.length - 1].classList.add('empty');
+      tiles[tiles.length - 1].style.backgroundImage = 'none';
+    }
+
+    function moveTile(index) {
+      const emptyIndex = tiles.findIndex(t => t.classList.contains('empty'));
+      const validMoves = getValidMoves(emptyIndex);
+      if (validMoves.includes(index)) {
+        puzzle.insertBefore(tiles[index], tiles[emptyIndex]);
+        puzzle.insertBefore(tiles[emptyIndex], tiles[index + 1]);
+        [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+      }
+    }
+
+    function getValidMoves(emptyIndex) {
+      const x = emptyIndex % size;
+      const y = Math.floor(emptyIndex / size);
+      const moves = [];
+      if (x > 0) moves.push(emptyIndex - 1);
+      if (x < size - 1) moves.push(emptyIndex + 1);
+      if (y > 0) moves.push(emptyIndex - size);
+      if (y < size - 1) moves.push(emptyIndex + size);
+      return moves;
+    }
+
+    function shuffle() {
+      for (let i = 0; i < 1000; i++) {
+        const emptyIndex = tiles.findIndex(t => t.classList.contains('empty'));
+        const valid = getValidMoves(emptyIndex);
+        const rand = valid[Math.floor(Math.random() * valid.length)];
+        moveTile(rand);
+      }
+    }
+
+    createTiles();
+  </script>
+</body>
+</html>
